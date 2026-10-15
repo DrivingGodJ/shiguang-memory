@@ -71,7 +71,19 @@ pnpm --dir worker exec wrangler deploy
 - `com.drivinggodj.shiguang-memory-tunnel`：通过 HTTP/2 建立到 Workers VPC 的出站 Tunnel。
 - `com.drivinggodj.shiguang-memory-watchdog`：每两分钟检查公网健康状态，连续失败两次才重启 Tunnel，并设置十分钟重启冷却。
 
-登录 Mac 后它们会自动启动，异常退出时也会自动重启。查看状态或手动重启：
+登录 Mac 后代理与 Tunnel 会自动启动并在退出时自动重启，健康检查按两分钟间隔运行。
+
+如果启动项丢失、需要更新本机运行副本或重新安装，可以在项目根目录执行：
+
+```bash
+node worker/scripts/install-macos-service.mjs
+```
+
+安装器会同步代理与健康检查脚本到 `~/Library/Application Support/ShiguangMemory/runtime/worker/`，生成并加载三个启动项，同时在 `~/Library/Application Support/ShiguangMemory/launchagents/` 保存启动配置副本。已有 UID 请求统计会保留。Node.js 和 cloudflared 使用 Homebrew 的稳定路径，更新软件后无需修改版本目录。
+
+Tunnel 使用仅限当前隧道的连接令牌文件 `~/Library/Application Support/ShiguangMemory/secrets/tunnel-token`，直接由 cloudflared 读取，日常启动不依赖 Wrangler 的 OAuth 登录。该目录权限为 `700`、令牌文件权限为 `600`；不要将它提交到仓库。首次在其他 Mac 安装时，需要先把对应 Tunnel 的连接令牌保存到这个私有文件，再运行安装器。
+
+查看状态或手动重启：
 
 ```bash
 launchctl print gui/$(id -u)/com.drivinggodj.shiguang-memory-proxy
@@ -84,6 +96,7 @@ launchctl kickstart -k gui/$(id -u)/com.drivinggodj.shiguang-memory-watchdog
 
 日志位于 `~/Library/Logs/ShiguangMemory/`。本地代理仅监听 `127.0.0.1`，家庭路由器无需开放端口。
 守护脚本源码位于 `worker/scripts/tunnel-watchdog.sh`，本机运行副本安装在 `~/Library/Application Support/ShiguangMemory/`，避免 macOS 登录项无法读取“文稿”目录。
+健康检查会先检查本地代理；代理无响应时先恢复代理，再检查公网 Tunnel。Tunnel 连续两次失败才重启，只有成功发出重启命令后才开始计算冷却时间。
 
 本地代理会把成功的收藏夹读取请求按 UID 做持久统计，不保存访客 IP、Cookie 或收藏内容。仅在这台 Mac 上打开 `http://127.0.0.1:8787/local/uid-stats`，可以查看最近 100 次可识别请求，以及全部 UID 的累计请求次数、首次请求和最近请求时间。原始统计保存在 `~/Library/Application Support/ShiguangMemory/data/uid-request-stats.json`；公网 Worker 不转发该本地统计路由。
 
