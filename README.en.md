@@ -70,7 +70,7 @@ The installed web app uses the Shiguang icon and opens in its own window. Remove
 GitHub Pages web app
   -> https://api.drivinggodj.dpdns.org
   -> read-only Cloudflare gateway and Tunnel
-  -> local read-only service on the Mac
+  -> read-only service on the server
   -> Bilibili public favorites API
   -> IndexedDB in the visitor's browser
 ```

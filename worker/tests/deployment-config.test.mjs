@@ -31,3 +31,9 @@ test("the tunnel watchdog checks the custom production endpoint", async () => {
   assert.doesNotMatch(script, /workers\.dev/);
   assert.doesNotMatch(script, /bilishelf/);
 });
+
+test("the tunnel installer uses QUIC as required by Workers VPC", async () => {
+  const installer = await readFile(path.join(workerRoot, "scripts", "install-macos-service.mjs"), "utf8");
+  assert.match(installer, /"--protocol", "quic"/);
+  assert.doesNotMatch(installer, /"--protocol", "http2"/);
+});

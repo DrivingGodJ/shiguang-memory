@@ -9,7 +9,7 @@ GitHub Pages 前端
   -> 只读 Cloudflare Worker 固定入口
   -> Workers VPC 私网服务
   -> Cloudflare Tunnel
-  -> Mac 本地代理（127.0.0.1:8787）
+  -> 服务器只读代理（127.0.0.1:8787）
   -> B站公开收藏接口
 
 浏览器 IndexedDB
@@ -20,7 +20,7 @@ GitHub Pages 前端
 
 网页不会接收或保存 B站 Cookie，也不会移动、删除或新增 B站收藏。私密收藏夹不能仅凭链接读取，第一版只支持公开收藏夹。
 
-Cloudflare 只负责公网入口和私网转发，访问 B站接口的出口是这台 Mac 当前使用的家庭网络 IP。生产接口仅使用自定义域名；它不使用 Browser Rendering 时长。
+Cloudflare 只负责公网入口和私网转发，访问 B站接口的出口是代理服务器的网络 IP。生产服务已迁移到 Linux 服务器，不再依赖 Mac 在线；它不使用 Browser Rendering 时长。
 
 ## 本地运行
 
@@ -47,13 +47,13 @@ pnpm web:dev
 
 ## 当前线上部署
 
-线上唯一入口是 `https://api.drivinggodj.dpdns.org`，只开放三个 GET 路由：
+线上唯一入口是 `https://api.drivinggodj.dpdns.org`，普通访客只可使用三个 GET 路由：
 
 - `/api/health`（也兼容 `/health`）
 - `/api/folders?uid=...`
 - `/api/favorites?mediaId=...&page=...&pageSize=40`（主动刷新可附带 `fresh=1` 绕过两层缓存）
 
-它不能转发任意 URL，也不接受写请求。收藏页在 Mac 上缓存 5 分钟；未命中缓存的请求会排队、限速，并按访客 IP 限制频率，降低公共服务被滥用后触发 B站风控的风险。
+它不能转发任意 URL，也不接受写请求。收藏页在代理服务器上缓存 5 分钟；未命中缓存的请求会排队、限速，并按访客 IP 限制频率，降低公共服务被滥用后触发 B站风控的风险。
 
 重新部署 Worker 网关：
 
@@ -63,12 +63,31 @@ pnpm --dir worker exec wrangler deploy
 
 `worker/wrangler.jsonc` 已绑定现有的 Workers VPC 服务。若在新的 Cloudflare 账号重新部署，需要先创建 Tunnel、把 VPC 服务指向 Tunnel 的 `127.0.0.1:8787`，再把新服务 ID 写入配置。
 
-## Mac 常驻服务
+## 统计管理入口
 
-这台 Mac 已配置三个登录级 LaunchAgent：
+- `/admin/stats`：最近 100 次可识别请求和全部 UID 的累计次数。
+- `/admin/stats.json`：同一份统计的 JSON 数据。
+
+这两个管理路由仅接受 GET，使用 HTTPS 和浏览器原生 HTTP Basic Auth。用户名固定为 `admin`，专用随机密码保存在 Worker secret `STATS_ADMIN_PASSWORD` 中，不与服务器登录密码共用。首次设置或更换密码：
+
+```bash
+pnpm --dir worker exec wrangler secret put STATS_ADMIN_PASSWORD
+```
+
+按提示输入新密码，不要将密码写入源码、配置文件、URL 或 GitHub。缺少 secret 时入口返回 503，未认证或密码错误返回 401。管理入口独立于公共 API 的 CORS 流程，无需浏览器携带 Origin；所有管理响应均为 `private, no-store`，不会进入公共缓存，不向其他站点开放跨域读取。
+
+认证成功后，Worker 只通过现有 VPC binding 转发固定的本地统计路径，不转发浏览器密码、Cookie 或客户端 IP 头，也不会把任意路径变成代理。原 `/local/uid-stats` 和 `/local/uid-stats.json` 仍不能通过公网 Worker 直接访问。
+
+当前 Linux 服务位于 `/opt/shiguang-memory/worker`，统计文件为 `/var/lib/shiguang-memory/uid-request-stats.json`。`shiguang-memory-proxy.service`、`shiguang-memory-tunnel.service` 和 `shiguang-memory-watchdog.timer` 已启用；原 Mac 启动项已停用，旧数据和配置保留用于回退。
+
+Workers VPC 要求 Tunnel 使用 `--protocol quic`，并放行出站 UDP 7844。HTTP/2 即使显示 Tunnel 已连接，也不满足 VPC 的传输要求；不要以它作为此部署的回退模式。[Cloudflare 官方说明](https://developers.cloudflare.com/workers-vpc/reference/troubleshooting/)
+
+## 可选的 Mac 自托管
+
+若选择在 Mac 自托管，安装器会配置三个登录级 LaunchAgent：
 
 - `com.drivinggodj.shiguang-memory-proxy`：启动本地只读代理。
-- `com.drivinggodj.shiguang-memory-tunnel`：通过 HTTP/2 建立到 Workers VPC 的出站 Tunnel。
+- `com.drivinggodj.shiguang-memory-tunnel`：通过 QUIC 建立到 Workers VPC 的出站 Tunnel。
 - `com.drivinggodj.shiguang-memory-watchdog`：每两分钟检查公网健康状态，连续失败两次才重启 Tunnel，并设置十分钟重启冷却。
 
 登录 Mac 后代理与 Tunnel 会自动启动并在退出时自动重启，健康检查按两分钟间隔运行。
@@ -98,9 +117,9 @@ launchctl kickstart -k gui/$(id -u)/com.drivinggodj.shiguang-memory-watchdog
 守护脚本源码位于 `worker/scripts/tunnel-watchdog.sh`，本机运行副本安装在 `~/Library/Application Support/ShiguangMemory/`，避免 macOS 登录项无法读取“文稿”目录。
 健康检查会先检查本地代理；代理无响应时先恢复代理，再检查公网 Tunnel。Tunnel 连续两次失败才重启，只有成功发出重启命令后才开始计算冷却时间。
 
-本地代理会把成功的收藏夹读取请求按 UID 做持久统计，不保存访客 IP、Cookie 或收藏内容。仅在这台 Mac 上打开 `http://127.0.0.1:8787/local/uid-stats`，可以查看最近 100 次可识别请求，以及全部 UID 的累计请求次数、首次请求和最近请求时间。原始统计保存在 `~/Library/Application Support/ShiguangMemory/data/uid-request-stats.json`；公网 Worker 不转发该本地统计路由。
+本地代理会把成功的收藏夹读取请求按 UID 做持久统计，不保存访客 IP、Cookie 或收藏内容。Mac 自托管时可打开 `http://127.0.0.1:8787/local/uid-stats` 查看统计，原始数据保存在 `~/Library/Application Support/ShiguangMemory/data/uid-request-stats.json`。公网访问仍需通过上面的独立管理入口认证。
 
-Mac 必须处于已登录、联网且未睡眠状态；关机、退出登录或睡眠期间，网页仍能打开，但新的收藏同步会暂时失败。访客已存入自己浏览器的数据仍可离线检索。
+只有选择 Mac 自托管时才需要让 Mac 保持已登录、联网且未睡眠；当前 Linux 生产服务不受 Mac 关机影响。访客已存入自己浏览器的数据仍可离线检索。
 
 ## 部署 GitHub Pages
 

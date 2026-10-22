@@ -9,6 +9,9 @@
   "vars": {
     "ALLOWED_ORIGINS": "https://drivinggodj.github.io"
   },
+  "secrets": {
+    "required": ["STATS_ADMIN_PASSWORD"]
+  },
   "routes": [
     {
       "pattern": "api.drivinggodj.dpdns.org",
@@ -26,6 +29,10 @@
     "enabled": true,
     "logs": {
       "head_sampling_rate": 1
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.01
     }
   }
 }

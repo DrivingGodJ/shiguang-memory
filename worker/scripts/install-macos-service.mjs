@@ -70,7 +70,7 @@ const jobs = [
   {
     name: "tunnel",
     Label: "com.drivinggodj.shiguang-memory-tunnel",
-    ProgramArguments: [tunnelBinary, "tunnel", "--no-autoupdate", "--protocol", "http2", "--loglevel", "warn", "run", "--token-file", tokenFile],
+    ProgramArguments: [tunnelBinary, "tunnel", "--no-autoupdate", "--protocol", "quic", "--loglevel", "warn", "run", "--token-file", tokenFile],
     KeepAlive: true,
     ThrottleInterval: 10,
     logName: "tunnel",

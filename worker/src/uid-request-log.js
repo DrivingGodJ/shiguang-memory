@@ -204,7 +204,7 @@ export function renderUidStatsHtml(state) {
 </head>
 <body>
   <h1>UID 请求统计</h1>
-  <p class="note">仅保存在这台 Mac。本页每 30 秒刷新，不记录访客 IP、Cookie 或私密收藏内容。</p>
+  <p class="note">统计仅保存在代理服务器。本页每 30 秒刷新，不记录访客 IP、Cookie 或私密收藏内容。</p>
   <div class="cards">
     <div class="card">累计可识别请求<span class="value">${Number(state.totalRequests || 0)}</span></div>
     <div class="card">不同 UID<span class="value">${uniqueUidCount}</span></div>

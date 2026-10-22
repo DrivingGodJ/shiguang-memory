@@ -1,3 +1,5 @@
+import { timingSafeEqual } from "node:crypto";
+
 const BILIBILI_FAVORITES_API = "https://api.bilibili.com/x/v3/fav/resource/list";
 const BILIBILI_FOLDERS_API = "https://api.bilibili.com/x/v3/fav/folder/created/list-all";
 const MAX_PAGE = 2500;
@@ -81,6 +83,70 @@ function corsHeaders(origin) {
   };
 }
 
+function statsResponse(body, status, contentType = "text/plain; charset=utf-8", extraHeaders = {}) {
+  return new Response(body, {
+    status,
+    headers: {
+      "Content-Type": contentType,
+      "Cache-Control": "private, no-store",
+      "CDN-Cache-Control": "no-store",
+      "Vary": "Authorization",
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "X-Robots-Tag": "noindex, nofollow, noarchive",
+      "Referrer-Policy": "no-referrer",
+      ...extraHeaders,
+    },
+  });
+}
+
+async function handleAdminStats(request, env, statsPath) {
+  const url = new URL(request.url);
+  if (url.protocol !== "https:") {
+    url.protocol = "https:";
+    return statsResponse(null, 308, undefined, { Location: url.toString() });
+  }
+  if (!env.STATS_ADMIN_PASSWORD) return statsResponse("Statistics access is not configured", 503);
+
+  const encoder = new TextEncoder();
+  const expected = `Basic ${btoa(`admin:${env.STATS_ADMIN_PASSWORD}`)}`;
+  const [providedHash, expectedHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(request.headers.get("Authorization") || "")),
+    crypto.subtle.digest("SHA-256", encoder.encode(expected)),
+  ]);
+  if (!timingSafeEqual(new Uint8Array(providedHash), new Uint8Array(expectedHash))) {
+    return statsResponse("Authentication required", 401, undefined, {
+      "WWW-Authenticate": 'Basic realm="Shiguang statistics", charset="UTF-8"',
+    });
+  }
+  if (request.method !== "GET") {
+    return statsResponse("Only GET is allowed", 405, undefined, { Allow: "GET" });
+  }
+  if (!env.MAC_PROXY) return statsResponse("Statistics service is unavailable", 503);
+
+  try {
+    // Construct a fresh request: never forward browser credentials or client-IP headers.
+    const upstream = await env.MAC_PROXY.fetch(new Request(`http://shiguang-mac.local${statsPath}`, {
+      headers: { Accept: statsPath.endsWith(".json") ? "application/json" : "text/html" },
+    }));
+    if (upstream.status !== 200) {
+      console.error(JSON.stringify({ message: "Statistics service returned an unexpected status", status: upstream.status }));
+      await upstream.body?.cancel();
+      return statsResponse("Statistics service is unavailable", 502);
+    }
+    return statsResponse(upstream.body, 200, statsPath.endsWith(".json")
+      ? "application/json; charset=utf-8"
+      : "text/html; charset=utf-8");
+  } catch (error) {
+    console.error(JSON.stringify({
+      message: "Statistics service request failed",
+      error: error instanceof Error ? error.message : String(error),
+    }));
+    return statsResponse("Statistics service is unavailable", 502);
+  }
+}
+
 async function forwardRequestToMac(request, env) {
   const incoming = new URL(request.url);
   const privateUrl = new URL(`http://shiguang-mac.local${incoming.pathname}`);
@@ -104,6 +170,11 @@ async function forwardRequestToMac(request, env) {
 
 export async function handleRequest(request, env = {}, context = {}) {
   const url = new URL(request.url);
+  if (url.pathname === "/admin/stats" || url.pathname === "/admin/stats.json") {
+    return handleAdminStats(request, env, url.pathname === "/admin/stats"
+      ? "/local/uid-stats"
+      : "/local/uid-stats.json");
+  }
   const allowedOrigin = resolveAllowedOrigin(request, env);
 
   if (!allowedOrigin) {

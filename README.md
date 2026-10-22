@@ -66,6 +66,7 @@
 
 - 收藏夹链接、视频元数据和同步时间保存在浏览器 IndexedDB 中。
 - 服务端不建立用户收藏数据库。
+- 代理保留最近 100 次可识别请求及各 UID 的累计请求次数；统计管理页需要独立账号密码，不公开访问记录。
 - 不接收、不保存也不转发 B站 Cookie。
 - 只读取无需登录即可访问的公开收藏夹。
 - 不提供新增、移动、删除收藏等写入能力。
@@ -77,7 +78,7 @@
 GitHub Pages 网页
   -> https://api.drivinggodj.dpdns.org
   -> Cloudflare 只读同步网关与 Tunnel
-  -> Mac 本地只读服务
+  -> 服务器上的只读服务
   -> 查询可访问的收藏夹列表（UID 模式）
   -> B站公开收藏接口
   -> 当前浏览器 IndexedDB
@@ -114,7 +115,9 @@ pnpm --dir frontend install
 pnpm --dir worker start:local
 ```
 
-本地代理运行后，可在 `http://127.0.0.1:8787/local/uid-stats` 查看仅保存在这台 Mac 的 UID 请求统计，包括最近 100 次可识别请求及每个 UID 的累计次数。统计不记录访客 IP、Cookie 或收藏内容，公网 Worker 也不会转发该页面。
+本地代理运行后，可在 `http://127.0.0.1:8787/local/uid-stats` 查看 UID 请求统计，包括最近 100 次可识别请求及每个 UID 的累计次数。统计不记录访客 IP、Cookie 或收藏内容。
+
+部署后的管理员可通过 `/admin/stats` 查看统计表，或通过 `/admin/stats.json` 获取 JSON。两个入口均使用 HTTPS 和 HTTP Basic Auth，账号为 `admin`，密码通过 Worker secret `STATS_ADMIN_PASSWORD` 设置。没有配置密码时拒绝访问；原 `/local/uid-stats` 路由仍不会对公网转发，统计响应不进入公共缓存。配置方法见 [维护说明](./MEMORY_WEB.md#统计管理入口)。
 
 另开一个终端启动网页：
 
