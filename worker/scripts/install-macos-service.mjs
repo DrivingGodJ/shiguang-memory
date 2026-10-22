@@ -40,7 +40,7 @@ for (const directory of [agentRoot, savedAgentsRoot, logRoot, path.join(runtimeR
 }
 
 // Only update executable code. Existing UID statistics and secrets stay in place.
-for (const file of ["index.js", "local-server.js", "uid-request-log.js"]) {
+for (const file of ["index.js", "local-server.js", "uid-request-log.js", "stats-admin.js"]) {
   await fs.copyFile(path.join(workerRoot, "src", file), path.join(runtimeRoot, "src", file));
 }
 await fs.copyFile(path.join(workerRoot, "package.json"), path.join(runtimeRoot, "package.json"));

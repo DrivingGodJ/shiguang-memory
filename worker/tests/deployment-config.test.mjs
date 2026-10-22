@@ -37,3 +37,8 @@ test("the tunnel installer uses QUIC as required by Workers VPC", async () => {
   assert.match(installer, /"--protocol", "quic"/);
   assert.doesNotMatch(installer, /"--protocol", "http2"/);
 });
+
+test("the local installer includes the admin module imported by the proxy", async () => {
+  const installer = await readFile(path.join(workerRoot, "scripts", "install-macos-service.mjs"), "utf8");
+  assert.match(installer, /"stats-admin\.js"/);
+});

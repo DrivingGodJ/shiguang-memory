@@ -117,7 +117,7 @@ pnpm --dir worker start:local
 
 本地代理运行后，可在 `http://127.0.0.1:8787/local/uid-stats` 查看 UID 请求统计，包括最近 100 次可识别请求及每个 UID 的累计次数。统计不记录访客 IP、Cookie 或收藏内容。
 
-部署后的管理员可通过 `/admin/stats` 查看统计表，或通过 `/admin/stats.json` 获取 JSON。两个入口均使用 HTTPS 和 HTTP Basic Auth，账号为 `admin`，密码通过 Worker secret `STATS_ADMIN_PASSWORD` 设置。没有配置密码时拒绝访问；原 `/local/uid-stats` 路由仍不会对公网转发，统计响应不进入公共缓存。配置方法见 [维护说明](./MEMORY_WEB.md#统计管理入口)。
+部署后的管理员可通过 `/admin/stats` 查看统计表，未登录时会打开网页内登录表单，不依赖浏览器的账号密码弹窗。账号为 `admin`，密码通过 Worker secret `STATS_ADMIN_PASSWORD` 设置。登录状态通过安全 Cookie 保留最多 12 小时，可在 `/admin/login` 退出；`/admin/stats.json` 同样需要认证，脚本仍可使用 Basic Auth 读取。所有管理入口仅通过 HTTPS 使用；没有配置密码时拒绝访问，原 `/local/uid-stats` 路由仍不会对公网转发，统计响应不进入公共缓存。配置方法见 [维护说明](./MEMORY_WEB.md#统计管理入口)。
 
 另开一个终端启动网页：
 

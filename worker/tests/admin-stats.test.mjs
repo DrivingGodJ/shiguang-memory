@@ -31,6 +31,7 @@ function assertPrivate(response) {
   assert.equal(response.headers.has("Access-Control-Allow-Origin"), false);
   const vary = (response.headers.get("Vary") || "").toLowerCase().split(/\s*,\s*/);
   assert.ok(vary.includes("authorization"), "Vary must include Authorization");
+  assert.ok(vary.includes("cookie"), "Vary must include Cookie");
 }
 
 test("admin statistics require HTTPS before prompting for credentials", async (t) => {
@@ -86,8 +87,9 @@ for (const [name, authorization] of [
         }),
         envWith(upstream),
       );
-      assert.equal(response.status, 401);
-      assert.match(response.headers.get("WWW-Authenticate") || "", /^Basic\b/i);
+      assert.equal(response.status, route === "/admin/stats" ? 303 : 401);
+      assert.equal(response.headers.has("WWW-Authenticate"), false);
+      if (route === "/admin/stats") assert.equal(response.headers.get("Location"), "/admin/login");
       assertPrivate(response);
       assert.equal((await response.text()).includes(PRIVATE_BODY), false);
     }
@@ -249,7 +251,7 @@ test("a forged cache cannot bypass admin authentication or supply an authenticat
     const unauthorized = await handleRequest(
       new Request(`https://memory.example${route}`), envWith(upstream), context,
     );
-    assert.equal(unauthorized.status, 401);
+    assert.equal(unauthorized.status, route === "/admin/stats" ? 303 : 401);
     assertPrivate(unauthorized);
     const authorized = await handleRequest(adminRequest(route), envWith(upstream), context);
     assert.equal(authorized.status, 200);

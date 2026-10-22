@@ -68,13 +68,15 @@ pnpm --dir worker exec wrangler deploy
 - `/admin/stats`：最近 100 次可识别请求和全部 UID 的累计次数。
 - `/admin/stats.json`：同一份统计的 JSON 数据。
 
-这两个管理路由仅接受 GET，使用 HTTPS 和浏览器原生 HTTP Basic Auth。用户名固定为 `admin`，专用随机密码保存在 Worker secret `STATS_ADMIN_PASSWORD` 中，不与服务器登录密码共用。首次设置或更换密码：
+这两个统计路由仅接受 GET，并要求 HTTPS。浏览器未登录时会跳转到 `/admin/login` 的原生 HTML 表单，不再依赖手机兼容性不一致的 HTTP 认证弹窗。用户名固定为 `admin`，专用随机密码保存在 Worker secret `STATS_ADMIN_PASSWORD` 中，不与服务器登录密码共用。首次设置或更换密码：
 
 ```bash
 pnpm --dir worker exec wrangler secret put STATS_ADMIN_PASSWORD
 ```
 
-按提示输入新密码，不要将密码写入源码、配置文件、URL 或 GitHub。缺少 secret 时入口返回 503，未认证或密码错误返回 401。管理入口独立于公共 API 的 CORS 流程，无需浏览器携带 Origin；所有管理响应均为 `private, no-store`，不会进入公共缓存，不向其他站点开放跨域读取。
+按提示输入高熵随机密码，不要将密码写入源码、配置文件、URL 或 GitHub。缺少 secret 时入口返回 503。网页登录只接受同源 POST 和最多 4 KiB 的表单，错误密码返回明确提示，不回显密码。成功后设置 `__Host-` 前缀、`HttpOnly; Secure; SameSite=Lax` 的签名 Cookie，有效期最多 12 小时；签名绑定当前站点和用途，服务器校验过期时间，更换密码会使已有会话失效。`/admin/login` 提供查看统计和退出网页登录的操作。退出会清除此浏览器的 Cookie；若怀疑会话泄露，应更换密码以使所有已签发会话失效。
+
+脚本可继续预先发送 Basic Authorization 读取统计；HTML 浏览器导航只使用 Cookie，避免旧的弹窗凭据干扰网页登录。未认证的 JSON 请求返回 401，所有入口都不再发送原生认证 challenge。管理入口独立于公共 API 的 CORS 流程，读取无需 Origin，但登录及退出的 POST 必须携带同源 Origin。所有管理响应均为 `private, no-store`，不会进入公共缓存，不向其他站点开放跨域读取；凭据和 Cookie 不写入应用日志。
 
 认证成功后，Worker 只通过现有 VPC binding 转发固定的本地统计路径，不转发浏览器密码、Cookie 或客户端 IP 头，也不会把任意路径变成代理。原 `/local/uid-stats` 和 `/local/uid-stats.json` 仍不能通过公网 Worker 直接访问。
 
