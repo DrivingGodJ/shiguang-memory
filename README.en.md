@@ -2,64 +2,39 @@
 
 # Shiguang · Bilibili Favorites Time Machine
 
-Turn a public Bilibili favorites folder into a searchable timeline to revisit by date or rediscover at random.
+A favorites folder records more than what you meant to watch. Shiguang turns it into a timeline you can revisit by date, search or rediscover at random.
 
-[Open Shiguang](https://drivinggodj.github.io/shiguang-memory/) · [Self-hosting and maintenance](MEMORY_WEB.md)
+[Open Shiguang](https://drivinggodj.github.io/shiguang-memory/)
 
-![Shiguang light mode: favorites timeline and random memories](docs/images/shiguang-light-mode.jpg)
+![Light mode: browse videos by favorite date and discover random memories](docs/images/shiguang-light-mode.jpg)
 
-## Features
+## Return to the day you saved it
 
-- Discover public folders from a UID or profile link, or import a folder URL directly.
-- Filter by year, month and day; search titles, creators, descriptions and BV IDs.
-- Timeline/grid views, groups of four random memories and On This Day grouped by year.
-- Incremental refresh and full reconciliation, retaining previously synced unavailable videos and removal records.
-- Desktop/mobile layouts, system appearance and home-screen installation.
+Browse by year, month or day to rediscover what interested you at a particular time. Follow the timeline backward or scan more covers in a grid. Search titles, creators, descriptions and BV IDs.
 
-## Quick start
+## Let a memory find you
 
-1. Open the website, enter a Bilibili UID or profile URL, and find its favorites folders.
-2. Select an accessible public folder, or paste `https://www.bilibili.com/list/ml{folderID}` under link import.
-3. Keep the page open for the first full sync, then browse by date or search.
+Random Memories brings four videos at a time without needing a keyword. On This Day groups past favorites from the same date by year. Previously synced records can remain even when a video is no longer available.
 
-No extension or Bilibili login is required, and folders are never modified. The same browser returns to its locally saved folder. On iPhone, use Safari → Share → Add to Home Screen; on Android, use the browser's add/install action. Remove and recreate old shortcuts that lack the icon.
+## Revisit on your own screen
 
-## Usage
+Use a phone or computer, follow system light/dark appearance or add the app to a home screen. Imported favorites are indexed in the current browser so you can continue browsing later.
 
-![Shiguang dark mode](docs/images/shiguang-dark-mode.jpg)
+![The system-following dark interface](docs/images/shiguang-dark-mode.jpg)
 
-Folder links, video metadata and sync times live in browser IndexedDB. The server does not build a user favorites database or accept, store or forward Bilibili cookies. It reads public APIs only. The proxy retains the latest 100 identifiable requests and cumulative counts by UID; statistics require separate administrator authentication and are not public.
+## Start revisiting
 
-The web app queries Bilibili through a read-only gateway and service with route validation, caching, queues and rate limits. Manual refresh bypasses short-term caches; count changes trigger full reconciliation. Clearing site data removes local memories. Devices and browsers do not sync automatically, so retain the original favorites folder.
+Open the site, enter a Bilibili UID or profile URL and select a public folder, or paste a folder link directly. Browse by date after the first sync finishes.
 
-Private folders cannot be read. Large first syncs can take time. Saved content remains searchable during service outages. Some favorites from before roughly July 2020 share Bilibili's migration timestamp; missing exact dates cannot be reconstructed.
+No Bilibili login is needed, and folders are never modified. Private folders cannot be read.
 
-## Development and checks
+## Explore further
 
-Requires **Node.js 22+** and pnpm.
+| Topic | Documentation |
+| --- | --- |
+| Import, sync, home-screen installation and date limitations | [User guide](docs/GUIDE.en.md) |
+| Local data, request statistics and usage limits | [Data and usage details](docs/GUIDE.en.md#usage) |
+| Self-hosting, development and maintenance | [Maintenance (Chinese)](MEMORY_WEB.md) |
+| Feedback | [Issues](https://github.com/DrivingGodJ/shiguang-memory/issues) |
 
-```bash
-pnpm --dir worker install
-pnpm --dir frontend install
-pnpm --dir worker start:local
-```
-
-In another terminal, run `pnpm web:dev` and open `http://localhost:5173`.
-
-```bash
-pnpm --dir worker test
-pnpm web:check
-pnpm web:build
-```
-
-`frontend/` contains the website and local data layer; `worker/` contains the read-only gateway and local proxy. Local proxy statistics are at `http://127.0.0.1:8787/local/uid-stats` and exclude visitor IPs, cookies and favorites content. Deployed `/admin/stats` uses the `admin` account and Worker secret `STATS_ADMIN_PASSWORD`; statistics are excluded from public caches. See the maintenance guide for authentication, HTTPS and deployment. Never commit tokens, Tunnel credentials or cookies.
-
-## Documentation and support
-
-- [Self-hosting, gateway and statistics administration (Chinese)](MEMORY_WEB.md)
-- [Third-party notices](THIRD_PARTY_NOTICES.md)
-- [Report an issue](https://github.com/DrivingGodJ/shiguang-memory/issues)
-
-## License and credits
-
-[MIT License](LICENSE). Shiguang originated from [TLRKFXE/BiliShelf](https://github.com/TLRKFXE/BiliShelf) and preserves the original copyright and attribution. This repository now maintains only the Shiguang web app, data layer and read-only proxy. Date search, timeline, random memories, On This Day, UID import and PWA support were added here; the original extension and favorites management center were removed.
+Originated from [BiliShelf](https://github.com/TLRKFXE/BiliShelf), preserving original copyrights. [MIT License](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
