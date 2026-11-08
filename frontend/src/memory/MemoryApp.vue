@@ -930,6 +930,7 @@ onBeforeUnmount(() => {
                 v-for="video in randomMemories"
                 :key="video.key"
                 :video="video"
+                :proxy-base-url="settings.proxyBaseUrl"
               />
             </div>
             <div v-else class="memory-showcase__empty">同步收藏后，这里会直接排出一组随机回忆。</div>
@@ -969,6 +970,7 @@ onBeforeUnmount(() => {
                     v-for="video in group.items"
                     :key="video.key"
                     :video="video"
+                    :proxy-base-url="settings.proxyBaseUrl"
                   />
                 </div>
               </section>
@@ -1058,6 +1060,7 @@ onBeforeUnmount(() => {
                 v-for="video in visibleVideos"
                 :key="video.key"
                 :video="video"
+                :proxy-base-url="settings.proxyBaseUrl"
               />
             </div>
 
@@ -1073,6 +1076,7 @@ onBeforeUnmount(() => {
                     v-for="video in group.items"
                     :key="video.key"
                     :video="video"
+                    :proxy-base-url="settings.proxyBaseUrl"
                   />
                 </div>
               </section>

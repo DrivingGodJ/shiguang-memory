@@ -20,6 +20,8 @@ Folder links, video metadata and sync times live in browser IndexedDB. The serve
 
 The web app queries Bilibili through a read-only gateway and service with route validation, caching, queues and rate limits. Manual refresh bypasses short-term caches; count changes trigger full reconciliation. Clearing site data removes local memories. Devices and browsers do not sync automatically, so retain the original favorites folder.
 
+On phones, video cards use two columns. Covers load through the existing gateway's `/api/cover` thumbnail cache, with a fallback to the original image. Only hashed archive covers on the fixed Bilibili image CDN are accepted; cookies and other credentials are never forwarded. Existing saved collections do not need to be imported again.
+
 Private folders cannot be read. Large first syncs can take time. Saved content remains searchable during service outages. Some favorites from before roughly July 2020 share Bilibili's migration timestamp; missing exact dates cannot be reconstructed.
 
 ## Development and checks

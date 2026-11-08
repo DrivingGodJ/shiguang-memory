@@ -83,6 +83,49 @@ function corsHeaders(origin) {
   };
 }
 
+export function buildCoverUpstreamUrl(requestUrl) {
+  const path = new URL(requestUrl).searchParams.get("path") || "";
+  if (!/^\/bfs\/archive\/[a-f0-9]{32,64}\.(?:jpe?g|png|webp|avif)$/i.test(path)) {
+    throw new Error("封面路径无效");
+  }
+  // Fixed CDN and thumbnail size: this is not an arbitrary URL proxy.
+  return `https://i0.hdslb.com${path}@640w_360h_1c.webp`;
+}
+
+async function coverResponse(request, allowedOrigin) {
+  const headers = { ...corsHeaders(allowedOrigin), "Cache-Control": "no-store" };
+  let upstreamUrl;
+  try {
+    upstreamUrl = buildCoverUpstreamUrl(request.url);
+  } catch {
+    return json({ code: -400, message: "封面路径无效" }, { status: 400, headers });
+  }
+  try {
+    const upstream = await fetch(upstreamUrl, {
+      headers: { Accept: "image/webp,image/*", Referer: "https://www.bilibili.com/" },
+      redirect: "manual",
+      signal: AbortSignal.timeout(8000),
+      cf: { cacheEverything: true, cacheTtlByStatus: { "200-299": 604800, "300-599": -1 } },
+    });
+    const contentType = (upstream.headers.get("Content-Type") || "").split(";")[0].trim();
+    if (upstream.status !== 200 || !/^image\/(?:jpeg|png|webp|avif)$/i.test(contentType)
+      || Number(upstream.headers.get("Content-Length") || 0) > 2 * 1024 * 1024) {
+      await upstream.body?.cancel();
+      return json({ code: -502, message: "封面暂时无法加载" }, { status: 502, headers });
+    }
+    return new Response(upstream.body, {
+      headers: {
+        ...corsHeaders(allowedOrigin),
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=86400, s-maxage=604800",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } catch {
+    return json({ code: -502, message: "封面暂时无法加载" }, { status: 502, headers });
+  }
+}
+
 async function forwardRequestToMac(request, env) {
   const incoming = new URL(request.url);
   const privateUrl = new URL(`http://shiguang-mac.local${incoming.pathname}`);
@@ -128,6 +171,8 @@ export async function handleRequest(request, env = {}, context = {}) {
       { status: 405, headers: corsHeaders(allowedOrigin) },
     );
   }
+
+  if (url.pathname === "/api/cover") return coverResponse(request, allowedOrigin);
 
   if (url.pathname === "/health" || url.pathname === "/api/health") {
     if (env?.MAC_PROXY) {

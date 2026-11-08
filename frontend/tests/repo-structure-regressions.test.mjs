@@ -52,9 +52,10 @@ test("current readmes no longer tell contributors to run backend commands", asyn
 test("public docs use only the custom production endpoint and neutral folder examples", async () => {
   const readmeZh = await readRepoText("README.md");
   const deploymentGuide = await readRepoText("MEMORY_WEB.md");
-  const publicDocs = `${readmeZh}\n${deploymentGuide}`;
+  const usageGuide = await readRepoText("docs", "GUIDE.zh-CN.md");
+  const publicDocs = `${readmeZh}\n${deploymentGuide}\n${usageGuide}`;
 
   assert.doesNotMatch(publicDocs, /bilishelf-memory-proxy\.workers\.dev/);
   assert.doesNotMatch(publicDocs, /bilibili\.com\/list\/ml\d+/);
-  assert.match(readmeZh, /ml\{收藏夹ID\}/);
+  assert.match(usageGuide, /ml\{收藏夹ID\}/);
 });
