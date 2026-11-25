@@ -41,6 +41,7 @@ function handleImageError() {
       referrerpolicy="no-referrer"
       @error="handleImageError"
     />
+    <span v-if="video.isInvalid" class="memory-card__invalid"><CircleAlert :size="12" /> 已失效</span>
     <span v-if="video.duration" class="memory-card__duration">{{ formatDuration(video.duration) }}</span>
     <span class="memory-card__date-stamp">{{ formatFavoriteDate(video.favoriteAt) }}</span>
   </a>
@@ -48,7 +49,6 @@ function handleImageError() {
   <div class="memory-card__body">
     <div class="memory-card__eyebrow">
       <span class="memory-card__saved-date"><CalendarDays :size="14" /> 收藏于 {{ formatFavoriteDate(video.favoriteAt) }}</span>
-      <span v-if="video.isInvalid" class="memory-card__invalid"><CircleAlert :size="14" /> 已失效</span>
     </div>
     <h3>
       <a :href="video.videoUrl" target="_blank" rel="noreferrer">{{ video.title }}</a>
@@ -56,8 +56,8 @@ function handleImageError() {
     <p class="memory-card__description">{{ video.description || "当时没有留下简介，但这段收藏还在。" }}</p>
     <div class="memory-card__footer">
       <span class="memory-card__uploader" :title="video.uploader"><UserRound :size="14" /><span>{{ video.uploader }}</span></span>
-      <a :href="video.videoUrl" target="_blank" rel="noreferrer" class="memory-card__open">
-        去看看 <ExternalLink :size="14" />
+      <a :href="video.videoUrl" target="_blank" rel="noreferrer" class="memory-card__open" :aria-label="`去看看：${video.title}`">
+        去看看 <ExternalLink :size="13" aria-hidden="true" />
       </a>
     </div>
   </div>

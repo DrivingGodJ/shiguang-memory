@@ -41,8 +41,7 @@ test("the redesigned journey exposes all three memory paths and accessible filte
   assert.match(source, /href="#random-memories"/);
   assert.match(source, /href="#today-memories"/);
   assert.match(source, /href="#memory-finder"/);
-  assert.match(source, /class="memory-paths__index" aria-hidden="true">01</);
-  assert.match(source, /class="memory-paths__index" aria-hidden="true">03</);
+  assert.equal((source.match(/class="memory-paths__icon" aria-hidden="true"/g) || []).length, 3);
   assert.match(source, /class="collection-header__ledger" aria-label="收藏夹概况"/);
   assert.match(source, /<dt>最近收藏<\/dt>/);
   assert.doesNotMatch(source, /<dt>上次整理<\/dt>/);

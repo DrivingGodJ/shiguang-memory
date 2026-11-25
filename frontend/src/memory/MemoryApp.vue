@@ -890,18 +890,15 @@ onBeforeUnmount(() => {
 
         <nav class="memory-paths" aria-label="选择回忆方式">
           <a href="#random-memories">
-            <span class="memory-paths__index" aria-hidden="true">01</span>
-            <span class="memory-paths__icon"><Dice5 :size="19" /></span>
-            <span><strong>随机逛逛</strong><small>一次遇见 4 段回忆</small></span>
+            <span class="memory-paths__icon" aria-hidden="true"><Dice5 :size="19" /></span>
+            <span><strong>随机回忆</strong><small>一次遇见 4 段回忆</small></span>
           </a>
           <a href="#today-memories">
-            <span class="memory-paths__index" aria-hidden="true">02</span>
-            <span class="memory-paths__icon"><CalendarClock :size="19" /></span>
-            <span><strong>那年今日</strong><small>{{ todayMemoryCount ? `${formatCount(todayMemoryCount)} 段往年今日` : "等待某个有记录的日子" }}</small></span>
+            <span class="memory-paths__icon" aria-hidden="true"><CalendarClock :size="19" /></span>
+            <span><strong>那年今日</strong><small>{{ todayMemoryCount ? `${formatCount(todayMemoryCount)} 段往年今日` : "今天暂无往年收藏" }}</small></span>
           </a>
           <a href="#memory-finder">
-            <span class="memory-paths__index" aria-hidden="true">03</span>
-            <span class="memory-paths__icon"><Search :size="19" /></span>
+            <span class="memory-paths__icon" aria-hidden="true"><Search :size="19" /></span>
             <span><strong>按日期找</strong><small>搜索某年、某月、某日</small></span>
           </a>
         </nav>
@@ -925,7 +922,7 @@ onBeforeUnmount(() => {
               </div>
             </header>
 
-            <div v-if="randomMemories.length" class="memory-showcase__grid">
+            <div v-if="randomMemories.length" :key="randomPage" class="memory-showcase__grid memory-showcase__grid--random">
               <MemoryVideoCard
                 v-for="video in randomMemories"
                 :key="video.key"

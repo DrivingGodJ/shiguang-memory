@@ -61,7 +61,7 @@ test("memory web follows the system light and dark color scheme", async () => {
   assert.match(css, /\.memory-card \{[\s\S]*background: var\(--surface-raised\)/);
 });
 
-test("bundles the memory display font instead of relying on device fonts", async () => {
+test("uses Source Han Serif for reading and ships its Noto Serif SC counterpart for devices without it", async () => {
   const packageJson = JSON.parse(
     await readFile(new URL("package.json", frontendRoot), "utf8"),
   );
@@ -74,7 +74,8 @@ test("bundles the memory display font instead of relying on device fonts", async
 
   assert.equal(packageJson.dependencies["@fontsource-variable/noto-serif-sc"], "5.3.0");
   assert.match(main, /@fontsource-variable\/noto-serif-sc\/wght\.css/);
-  assert.match(css, /--font-memory: "Noto Serif SC Variable"/);
+  assert.match(css, /--font-memory: "Source Han Serif SC", "Source Han Serif CN", "Noto Serif SC Variable"/);
+  assert.match(css, /:root \{[^}]*font-family: var\(--font-memory\)/);
   assert.match(css, /\.memory-card h3 \{[\s\S]*font-family: var\(--font-memory\)/);
   assert.match(license, /SIL OPEN FONT LICENSE Version 1\.1/);
 });

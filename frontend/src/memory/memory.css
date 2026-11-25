@@ -1,10 +1,10 @@
 :root {
   color-scheme: light dark;
   --font-ui: "PingFang SC", "Noto Sans SC", "Microsoft YaHei UI", system-ui, sans-serif;
-  --font-memory: "Noto Serif SC Variable", "Source Han Serif SC", "Songti SC", "STSong", serif;
-  font-family: var(--font-ui);
-  color: #25241f;
-  background: #ece7dc;
+  --font-memory: "Source Han Serif SC", "Source Han Serif CN", "Noto Serif SC Variable", "Songti SC", "STSong", serif;
+  font-family: var(--font-memory);
+  color: var(--ink);
+  background: var(--canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --canvas: #ece7dc;
@@ -20,6 +20,8 @@
   --line-strong: rgba(53, 49, 41, 0.28);
   --red: #d35b4a;
   --red-dark: #a94135;
+  --action-primary: #a94135;
+  --action-primary-hover: #91362c;
   --green: #687a65;
   --night: #232923;
   --night-soft: #30382f;
@@ -78,6 +80,12 @@ a {
 
 button {
   color: inherit;
+}
+
+button,
+input,
+select {
+  font-family: var(--font-ui);
 }
 
 a {
@@ -351,6 +359,11 @@ select:focus-visible {
   box-shadow: 0 0 0 3px rgba(211, 91, 74, 0.08);
 }
 
+.button:active:not(:disabled),
+.view-toggle button:active {
+  transform: translateY(1px);
+}
+
 .button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -358,12 +371,12 @@ select:focus-visible {
 
 .button--primary {
   color: #fffaf3;
-  background: var(--red);
+  background: var(--action-primary);
   box-shadow: none;
 }
 
 .button--primary:hover:not(:disabled) {
-  background: #c84f3f;
+  background: var(--action-primary-hover);
   box-shadow: 0 0 0 3px rgba(211, 91, 74, 0.14);
 }
 
@@ -776,6 +789,7 @@ select:focus-visible {
 .collection-header__owner {
   margin: 12px 0 0;
   color: var(--muted);
+  font-family: var(--font-ui);
   font-size: 13px;
 }
 
@@ -806,6 +820,7 @@ select:focus-visible {
 
 .collection-header__ledger dt {
   color: var(--muted);
+  font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.09em;
@@ -829,44 +844,29 @@ select:focus-visible {
 .memory-paths {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
   margin-top: 20px;
-  overflow: hidden;
-  background: transparent;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
 }
 
 .memory-paths a {
-  position: relative;
   display: flex;
   min-width: 0;
-  min-height: 92px;
+  min-height: 76px;
   align-items: center;
   gap: 12px;
-  padding: 18px 24px 18px 46px;
+  padding: 14px 18px;
   text-decoration: none;
-  border-right: 1px solid var(--line);
-  transition: color 160ms ease, background 160ms ease;
-}
-
-.memory-paths a:last-child {
-  border-right: 0;
-}
-
-.memory-paths a:hover {
-  color: var(--red-dark);
   background: var(--surface-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  transition: color var(--motion-fast) ease, background var(--motion-fast) ease, border-color var(--motion-fast) ease;
 }
 
-.memory-paths__index {
-  position: absolute;
-  top: 18px;
-  left: 16px;
+.memory-paths a:hover,
+.memory-paths a:focus-visible {
   color: var(--red-dark);
-  font-family: Georgia, serif;
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
+  background: var(--surface-raised);
+  border-color: var(--line-strong);
 }
 
 .memory-paths__icon {
@@ -896,7 +896,8 @@ select:focus-visible {
 .memory-paths small {
   overflow: hidden;
   color: var(--muted);
-  font-size: 10px;
+  font-family: var(--font-ui);
+  font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1023,6 +1024,21 @@ select:focus-visible {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .memory-showcase__grid--random > .memory-card {
+    animation: memory-card-appear var(--motion-standard) var(--ease-out) both;
+  }
+
+  .memory-showcase__grid--random > .memory-card:nth-child(even) {
+    animation-delay: 35ms;
+  }
+
+  @keyframes memory-card-appear {
+    from { opacity: 0.35; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
 .memory-showcase .memory-card {
@@ -1159,7 +1175,8 @@ select:focus-visible {
   margin: 0 0 7px;
   padding: 0 0 0 2px;
   color: var(--muted);
-  font-size: 10px;
+  font-family: var(--font-ui);
+  font-size: 12px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.08em;
@@ -1239,6 +1256,7 @@ select:focus-visible {
 
 .results-header .kicker {
   margin-bottom: 9px;
+  overflow-wrap: anywhere;
 }
 
 .results-header h2 {
@@ -1277,6 +1295,7 @@ select:focus-visible {
   border: 0;
   border-radius: 3px;
   cursor: pointer;
+  transition: color var(--motion-fast) ease, background var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
 }
 
 .view-toggle button.active {
@@ -1303,7 +1322,8 @@ select:focus-visible {
   transition: box-shadow var(--motion-standard) var(--ease-out), border-color var(--motion-standard) ease;
 }
 
-.memory-card:hover {
+.memory-card:hover,
+.memory-card:focus-within {
   border-color: var(--line-strong);
   box-shadow: var(--shadow-raised);
 }
@@ -1323,6 +1343,7 @@ select:focus-visible {
 }
 
 .memory-card__cover img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1356,7 +1377,8 @@ select:focus-visible {
 }
 
 .memory-card__duration,
-.memory-card__date-stamp {
+.memory-card__date-stamp,
+.memory-card__invalid {
   position: absolute;
   z-index: 1;
   color: rgba(255, 255, 255, 0.92);
@@ -1367,6 +1389,7 @@ select:focus-visible {
   top: 11px;
   right: 11px;
   padding: 3px 6px;
+  font-family: var(--font-ui);
   font-size: 10px;
   background: rgba(20, 22, 19, 0.56);
   border-radius: 5px;
@@ -1376,7 +1399,7 @@ select:focus-visible {
   right: 11px;
   bottom: 12px;
   left: 11px;
-  font-family: Georgia, var(--font-memory);
+  font-family: var(--font-memory);
   font-size: 12px;
   text-align: left;
 }
@@ -1396,7 +1419,8 @@ select:focus-visible {
   justify-content: space-between;
   gap: 7px;
   margin-bottom: 10px;
-  color: #8a8478;
+  color: var(--muted);
+  font-family: var(--font-ui);
   font-size: 10px;
 }
 
@@ -1407,7 +1431,26 @@ select:focus-visible {
 }
 
 .memory-card__invalid {
-  color: var(--red-dark);
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 5px;
+  background: rgba(20, 22, 19, 0.85);
+  border-radius: 5px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+}
+
+.memory-card__cover:focus-visible {
+  outline-color: #fffaf3;
+  outline-offset: -4px;
+}
+
+.memory-card h3:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .memory-card h3 {
@@ -1419,6 +1462,7 @@ select:focus-visible {
   font-size: 17px;
   font-weight: 600;
   line-height: 1.5;
+  overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -1435,7 +1479,7 @@ select:focus-visible {
 }
 
 .memory-card h3 a:focus-visible {
-  border-radius: 3px;
+  outline: none;
 }
 
 .memory-card__description {
@@ -1465,7 +1509,8 @@ select:focus-visible {
   align-items: center;
   gap: 5px;
   overflow: hidden;
-  color: #68645b;
+  color: var(--muted);
+  font-family: var(--font-ui);
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1487,9 +1532,11 @@ select:focus-visible {
   align-items: center;
   gap: 5px;
   color: var(--red-dark);
+  font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 700;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .timeline {
@@ -1838,24 +1885,27 @@ select:focus-visible {
 
   .memory-paths {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
   }
 
   .memory-paths a {
-    min-height: 72px;
+    min-height: 68px;
+    flex-direction: column;
     justify-content: center;
-    gap: 4px;
-    padding: 22px 5px 8px;
+    gap: 5px;
+    padding: 7px 4px;
     text-align: center;
   }
 
   .memory-paths__icon {
-    display: none;
+    width: 25px;
+    height: 25px;
+    border: 0;
   }
 
-  .memory-paths__index {
-    top: 9px;
-    left: 50%;
-    transform: translateX(-50%);
+  .memory-paths__icon svg {
+    width: 17px;
+    height: 17px;
   }
 
   .memory-paths strong {
@@ -1934,38 +1984,51 @@ select:focus-visible {
 
   .memory-card__body,
   .memory-showcase .memory-card__body {
-    padding: 10px;
+    padding: 10px 9px 3px;
   }
 
   .memory-card h3,
   .memory-showcase .memory-card h3 {
-    min-height: 42px;
+    min-height: 3em;
     font-size: 14px;
     line-height: 1.5;
   }
 
-  .memory-card__eyebrow .memory-card__saved-date,
+  .memory-card__eyebrow,
   .memory-card__description,
   .memory-showcase .memory-card__description {
     display: none;
   }
 
-  .memory-card__eyebrow {
-    margin-bottom: 4px;
+  .memory-card__body {
+    gap: 6px;
   }
 
   .memory-card__footer,
   .memory-showcase .memory-card__footer {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 10px;
-    padding-top: 8px;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 0;
   }
 
   .memory-card__open {
     min-height: 44px;
     justify-content: flex-end;
+    gap: 3px;
+  }
+
+  .memory-card__open:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .memory-card__uploader {
+    gap: 4px;
+  }
+
+  .memory-card__uploader svg {
+    width: 12px;
+    height: 12px;
   }
 
   .memory-showcase__repeat {
@@ -1980,10 +2043,6 @@ select:focus-visible {
 
   .memory-card__date-stamp {
     font-size: 10px;
-  }
-
-  .memory-card__description {
-    -webkit-line-clamp: 2;
   }
 
   .filter-panel {
@@ -2010,8 +2069,6 @@ select:focus-visible {
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    color: #f0ede5;
-    background: #171a17;
     --canvas: #171a17;
     --surface: #20241f;
     --surface-raised: #292d27;
@@ -2025,6 +2082,8 @@ select:focus-visible {
     --line-strong: rgba(238, 233, 221, 0.22);
     --red: #df6b59;
     --red-dark: #ef8875;
+    --action-primary: #aa473a;
+    --action-primary-hover: #963c31;
     --green: #83967e;
     --night: #151915;
     --night-soft: #202620;
@@ -2086,10 +2145,6 @@ select:focus-visible {
   .proxy-panel input::placeholder,
   .search-field input::placeholder {
     color: #85887f;
-  }
-
-  .button--primary:hover:not(:disabled) {
-    background: #d45d4c;
   }
 
   .button--quiet {
@@ -2154,15 +2209,6 @@ select:focus-visible {
   .memory-showcase--today {
     background: transparent;
     border-color: var(--line);
-  }
-
-  .memory-paths {
-    background: transparent;
-    border-color: var(--line);
-  }
-
-  .memory-paths a:hover {
-    background: var(--surface-subtle);
   }
 
   .memory-paths__icon {
@@ -2240,6 +2286,11 @@ select:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .button:active:not(:disabled),
+  .view-toggle button:active {
+    transform: none;
+  }
+
   *,
   *::before,
   *::after {
