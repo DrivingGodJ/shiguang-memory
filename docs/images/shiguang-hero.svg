@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 248" role="img" aria-labelledby="title description">
+  <title id="title">Shiguang</title>
+  <desc id="description">A dated timeline with a warm highlight moving across past favorites.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#191e19"/>
+      <stop offset="1" stop-color="#30382f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="87%" cy="8%" r="65%">
+      <stop stop-color="#b66e54" stop-opacity=".32"/>
+      <stop offset="1" stop-color="#b66e54" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="track" gradientUnits="userSpaceOnUse" x1="620" y1="150" x2="1104" y2="150">
+      <stop stop-color="#e7c68f" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#e99b83" stop-opacity=".78"/>
+    </linearGradient>
+    <pattern id="grain" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M0 5.5h6" stroke="#f7f3ea" stroke-opacity=".032"/>
+    </pattern>
+  </defs>
+  <style>
+    .title { font: 68px Georgia, "Times New Roman", serif; }
+    .label { font: 600 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .13em; }
+    .date { font: 24px Georgia, "Times New Roman", serif; }
+    .cursor { opacity: 0; }
+    @media (prefers-reduced-motion: no-preference) {
+      .cursor { animation: trace 6s ease-in-out 2; }
+      @keyframes trace {
+        0%, 10% { opacity: 0; transform: translateX(0); }
+        22% { opacity: 1; transform: translateX(0); }
+        76% { opacity: 1; transform: translateX(360px); }
+        90%, 100% { opacity: 0; transform: translateX(360px); }
+      }
+    }
+  </style>
+  <rect x=".5" y=".5" width="1179" height="247" rx="18" fill="url(#paper)" stroke="#4e5045"/>
+  <rect x="1" y="1" width="1178" height="246" rx="18" fill="url(#glow)"/>
+  <rect x="1" y="1" width="1178" height="246" rx="18" fill="url(#grain)"/>
+
+  <circle cx="112" cy="124" r="38" fill="#d35b4a"/>
+  <path d="M93 121a19 19 0 1 1 3 15m-3-15v-12m0 12h12m7-9v13l7 4" fill="none" stroke="#fffaf3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="176" y="133" class="title" fill="#f7f3ea">Shiguang</text>
+  <text x="181" y="169" class="label" fill="#e7c68f">BILIBILI FAVORITES</text>
+
+  <path d="M620 150H1104" stroke="url(#track)" stroke-width="1.5"/>
+  <g fill="#f7f3ea" class="date" text-anchor="middle">
+    <text x="681" y="120">04.17</text>
+    <text x="861" y="120">08.23</text>
+    <text x="1041" y="120">11.24</text>
+  </g>
+  <g fill="#191e19" stroke="#e99b83" stroke-width="2">
+    <circle cx="681" cy="150" r="5"/>
+    <circle cx="861" cy="150" r="5"/>
+    <circle cx="1041" cy="150" r="5"/>
+  </g>
+  <g class="cursor">
+    <circle cx="681" cy="150" r="11" fill="none" stroke="#ffa88d" stroke-opacity=".4"/>
+    <circle cx="681" cy="150" r="4" fill="#ffa88d"/>
+  </g>
+</svg>

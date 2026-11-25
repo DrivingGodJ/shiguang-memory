@@ -2,31 +2,45 @@
 
 # Shiguang · Bilibili Favorites Time Machine
 
-A favorites folder records more than what you meant to watch. Shiguang turns it into a timeline you can revisit by date, search or rediscover at random.
+Turn your Bilibili favorites into a timeline. Go back to the day you saved a video, or shuffle through a few old favorites.
 
-[Open Shiguang](https://drivinggodj.github.io/shiguang-memory/)
+**[Open Shiguang](https://drivinggodj.github.io/shiguang-memory/)** · [User guide](docs/GUIDE.en.md)
 
-![Light mode: browse videos by favorite date and discover random memories](docs/images/shiguang-light-mode.jpg)
+![Shiguang banner with a highlight moving along saved dates](docs/images/shiguang-hero.svg)
 
 ## Return to the day you saved it
 
-Browse by year, month or day to rediscover what interested you at a particular time. Follow the timeline backward or scan more covers in a grid. Search titles, creators, descriptions and BV IDs.
+Pick a year, month, and day to see what you saved. Search by title, creator, description, or BV ID when you remember a detail. Follow the timeline by date or switch to the grid to scan the covers.
 
-## Let a memory find you
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/shiguang-desktop-dark.webp">
+  <img src="docs/images/shiguang-desktop-light.webp" alt="Shiguang on desktop, with a date filter and three videos saved on the same day" width="1440">
+</picture>
 
-Random Memories brings four videos at a time without needing a keyword. On This Day groups past favorites from the same date by year. Previously synced records can remain even when a video is no longer available.
+## Rediscover old favorites
 
-## Revisit on your own screen
-
-Use a phone or computer, follow system light/dark appearance or add the app to a home screen. Imported favorites are indexed in the current browser so you can continue browsing later.
-
-![The system-following dark interface](docs/images/shiguang-dark-mode.jpg)
+<table>
+  <tr>
+    <td width="37%" align="center" valign="middle">
+      <img src="docs/images/shiguang-mobile-dark.webp" alt="Shiguang on mobile, showing four random favorites in a two-column dark-mode layout" width="275">
+      <br>
+      <sub>Mobile · Dark mode</sub>
+    </td>
+    <td width="63%" valign="middle">
+      <p><strong>Random Memories</strong> picks four videos at a time. Shuffle to see another set. New cards fade in, with support for the system's reduced-motion setting.</p>
+      <p><strong>On This Day</strong> groups favorites saved on the same date in past years. Previously synced records can remain available after a video is removed.</p>
+      <p><strong>Two columns on phones</strong> put the creator and watch link on one line. Titles and reading text use Source Han Serif styling, and light or dark appearance follows your system.</p>
+    </td>
+  </tr>
+</table>
 
 ## Start revisiting
 
-Open the site, enter a Bilibili UID or profile URL and select a public folder, or paste a folder link directly. Browse by date after the first sync finishes.
+1. Open the site, enter a Bilibili UID or profile URL, and choose a public favorites folder. You can also paste a folder link.
+2. Wait for the first sync. The index is saved in your current browser so you can pick up where you left off.
+3. On phones, add Shiguang to your home screen for quick access.
 
-No Bilibili login is needed, and folders are never modified. Private folders cannot be read.
+Shiguang reads public favorites folders only. No Bilibili login is required.
 
 ## Explore further
 
@@ -37,4 +51,4 @@ No Bilibili login is needed, and folders are never modified. Private folders can
 | Self-hosting, development and maintenance | [Maintenance (Chinese)](MEMORY_WEB.md) |
 | Feedback | [Issues](https://github.com/DrivingGodJ/shiguang-memory/issues) |
 
-Originated from [BiliShelf](https://github.com/TLRKFXE/BiliShelf), preserving original copyrights. [MIT License](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+The Bilibili favorites API integration draws on [BiliShelf](https://github.com/TLRKFXE/BiliShelf)'s open-source implementation and preserves the original copyright notice. [MIT License](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
